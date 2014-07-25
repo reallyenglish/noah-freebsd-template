@@ -16,9 +16,22 @@ FREEBSD_UPDATE_DIR?=	/var/db/freebsd-update
 SRC_BASE?=  /usr/src
 
 FILES_DIR?=	files
+# FILES				files to install under ${FILES_DIR}
 FILES=	/etc/ssh/sshd_config \
 		/usr/local/etc/rc.d/cloudstack_fetchkey
 
+# FILES_TO_CLEAN	files to remove before reboot
+FILES_TO_CLEAN= /root/.ssh/authorized_keys \
+	/root/.history \
+	/home/cs-user/.ssh/authorized_keys \
+	/home/cs-user/.history \
+	/etc/ssh/ssh_host_*	\
+	${PKG_DB_DIR}/repo-*.sqlite
+# DIRS_TO_CLEAN		directories to remove before reboot
+DIRS_TO_CLEAN= ${PKG_CACHE_DIR}/* \
+	${FREEBSD_UPDATE_DIR}
+
+# PACKAGES			packages to install
 PACKAGES=	firstboot-freebsd-update
 
 # Get __FreeBSD_version (obtained from bsd.port.mk)
@@ -61,14 +74,12 @@ ${FIRSTBOOT_SENTINEL}:
 	${TOUCH} ${.TARGET}
 
 clean:
-	${RM} -f /root/.ssh/authorized_keys
-	${RM} -f /root/.history
-	${RM} -f /home/cs-user/.ssh/authorized_keys
-	${RM} -f /home/cs-user/.history
-	${RM} -f /etc/ssh/ssh_host_*
-	${RM} -rf ${PKG_CACHE_DIR}/*
-	${RM} -f ${PKG_DB_DIR}/repo-*.sqlite
-	${RM} -rf ${FREEBSD_UPDATE_DIR}
+.for F in ${FILES_TO_CLEAN}
+	${RM} -f "${F}"
+.endfor
+.for D in ${DIRS_TO_CLEAN}
+	${RM} -rf "${D}"
+.endfor
 
 shutdown:
 	${SHUTDOWN} -p now
