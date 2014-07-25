@@ -31,6 +31,7 @@ FILES_TO_CLEAN= /root/.ssh/authorized_keys \
 	${PKG_DB_DIR}/repo-*.sqlite
 # DIRS_TO_CLEAN		directories to remove before reboot
 DIRS_TO_CLEAN= ${PKG_CACHE_DIR}/* \
+	/root/.ssh \
 	/home/${INITIAL_USER}/.ssh \
 	${FREEBSD_UPDATE_DIR}
 
