@@ -1,5 +1,6 @@
 AWK?=   /usr/bin/awk
 SYSCTL?=    /sbin/sysctl
+FIRSTBOOT_SENTINEL?=	/firstboot
 
 PKG_CACHE_DIR?=	/var/cache/pkg
 PKG_DB_DIR?=	/var/db/pkg
@@ -23,17 +24,19 @@ OSVERSION!= ${SYSCTL} -n kern.osreldate
 .endif
 .endif
 
-all:	${FILES} ${PACKAGES}
+.if empty(OSVERSION)
+IGNORE=	cannot determine OSVERSION
+.endif
+.if ${OSVERSION} < 1000000
+IGNORE=	requires FreeBSD 10.0 or above
+.endif
 
-clean:
-	rm -f /root/.ssh/authorized_keys
-	rm -f /root/.history
-	rm -f /home/cs-user/.ssh/authorized_keys
-	rm -f /home/cs-user/.history
-	rm -f /etc/ssh/ssh_host_*
-	rm -rf ${PKG_CACHE_DIR}/*
-	rm -f ${PKG_DB_DIR}/repo-*.sqlite
-	rm -rf ${FREEBSD_UPDATE_DIR}
+all:	init ${FILES} ${PACKAGES} ${FIRSTBOOT_SENTINEL} clean shutdown
+
+init:
+.if defined(IGNORE)
+	@echo ">>> ${IGNORE}" && exit 1
+.endif
 
 ${FILES}:	${FILES_DIR}/${.TARGET}
 	install -o root -g wheel ${FILES_DIR}${.TARGET} ${.TARGET}
@@ -45,3 +48,19 @@ bootstrap-pkg:
 
 ${PACKAGES}:	bootstrap-pkg
 	env ASSUME_ALWAYS_YES=1 pkg install ${.TARGET} </dev/null
+
+${FIRSTBOOT_SENTINEL}:
+	touch ${.TARGET}
+
+clean:
+	rm -f /root/.ssh/authorized_keys
+	rm -f /root/.history
+	rm -f /home/cs-user/.ssh/authorized_keys
+	rm -f /home/cs-user/.history
+	rm -f /etc/ssh/ssh_host_*
+	rm -rf ${PKG_CACHE_DIR}/*
+	rm -f ${PKG_DB_DIR}/repo-*.sqlite
+	rm -rf ${FREEBSD_UPDATE_DIR}
+
+shutdown:
+	shutdown -p now
