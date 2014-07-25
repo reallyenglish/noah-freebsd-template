@@ -1,5 +1,13 @@
 AWK?=   /usr/bin/awk
 SYSCTL?=    /sbin/sysctl
+ENV=?	/usr/bin/env
+SHUTDOWN?=	/sbin/shutdown
+RM?=	/bin/rm
+ECHO?=	/bin/echo
+PKG?=	/usr/sbin/pkg
+TOUCH?=	/usr/bin/touch
+INSTALL?=	/usr/bin/install
+
 FIRSTBOOT_SENTINEL?=	/firstboot
 
 PKG_CACHE_DIR?=	/var/cache/pkg
@@ -35,32 +43,32 @@ all:	init ${FILES} ${PACKAGES} ${FIRSTBOOT_SENTINEL} clean shutdown
 
 init:
 .if defined(IGNORE)
-	@echo ">>> ${IGNORE}" && exit 1
+	@${ECHO} ">>> ${IGNORE}" && exit 1
 .endif
 
 ${FILES}:	${FILES_DIR}/${.TARGET}
-	install -o root -g wheel ${FILES_DIR}${.TARGET} ${.TARGET}
+	${INSTALL} -o root -g wheel ${FILES_DIR}${.TARGET} ${.TARGET}
 
 bootstrap-pkg:
-	if ! pkg -N 2>/dev/null; then \
-		env ASSUME_ALWAYS_YES=1 pkg bootstrap ;\
+	if ! ${PKG} -N 2>/dev/null; then \
+		${ENV} ASSUME_ALWAYS_YES=1 ${PKG} bootstrap ;\
 	fi
 
 ${PACKAGES}:	bootstrap-pkg
-	env ASSUME_ALWAYS_YES=1 pkg install ${.TARGET} </dev/null
+	${ENV} ASSUME_ALWAYS_YES=1 ${PKG} install ${.TARGET} </dev/null
 
 ${FIRSTBOOT_SENTINEL}:
-	touch ${.TARGET}
+	${TOUCH} ${.TARGET}
 
 clean:
-	rm -f /root/.ssh/authorized_keys
-	rm -f /root/.history
-	rm -f /home/cs-user/.ssh/authorized_keys
-	rm -f /home/cs-user/.history
-	rm -f /etc/ssh/ssh_host_*
-	rm -rf ${PKG_CACHE_DIR}/*
-	rm -f ${PKG_DB_DIR}/repo-*.sqlite
-	rm -rf ${FREEBSD_UPDATE_DIR}
+	${RM} -f /root/.ssh/authorized_keys
+	${RM} -f /root/.history
+	${RM} -f /home/cs-user/.ssh/authorized_keys
+	${RM} -f /home/cs-user/.history
+	${RM} -f /etc/ssh/ssh_host_*
+	${RM} -rf ${PKG_CACHE_DIR}/*
+	${RM} -f ${PKG_DB_DIR}/repo-*.sqlite
+	${RM} -rf ${FREEBSD_UPDATE_DIR}
 
 shutdown:
-	shutdown -p now
+	${SHUTDOWN} -p now
