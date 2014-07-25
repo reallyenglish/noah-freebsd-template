@@ -22,7 +22,7 @@ INITIAL_USER?=	cs-user
 FILES_DIR?=	files
 # FILES				files to install under ${FILES_DIR}
 FILES=	/etc/ssh/sshd_config \
-		/usr/local/etc/rc.d/cloudstack_fetchkey
+		/usr/local/etc/rc.d/cs_fetchkey
 
 # FILES_TO_CLEAN	files to remove before reboot
 FILES_TO_CLEAN= /root/.ssh/authorized_keys \
