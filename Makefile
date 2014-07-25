@@ -1,6 +1,6 @@
 AWK?=   /usr/bin/awk
 SYSCTL?=    /sbin/sysctl
-ENV=?	/usr/bin/env
+ENV?=	/usr/bin/env
 SHUTDOWN?=	/sbin/shutdown
 RM?=	/bin/rm
 ECHO?=	/bin/echo
