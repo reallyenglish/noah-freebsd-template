@@ -72,7 +72,7 @@ init:
 
 ${INITIAL_USER}:
 	if ! ${GREP} -q "^${INITIAL_USER}:" /etc/passwd; then \
-		${PW} useradd ${INITIAL_USER} -m -u 0 -G wheel; \
+		${PW} useradd ${INITIAL_USER} -m -G wheel; \
 	fi
 
 ${FILES}:	${FILES_DIR}/${.TARGET}
