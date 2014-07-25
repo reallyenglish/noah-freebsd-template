@@ -71,7 +71,7 @@ ${INITIAL_USER}:
 	fi
 
 ${FILES}:	${FILES_DIR}/${.TARGET}
-	${INSTALL} -o root -g wheel `${DIRNAME} ${.TARGET}`
+	${INSTALL} -o root -g wheel -d `${DIRNAME} ${.TARGET}`
 	${INSTALL} -o root -g wheel ${FILES_DIR}${.TARGET} ${.TARGET}
 
 bootstrap-pkg:
