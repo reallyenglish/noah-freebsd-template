@@ -50,9 +50,10 @@ OSVERSION!= ${SYSCTL} -n kern.osreldate
 
 .if empty(OSVERSION)
 IGNORE=	cannot determine OSVERSION
-.endif
+.else
 .if ${OSVERSION} < 1000000
 IGNORE=	requires FreeBSD 10.0 or above
+.endif
 .endif
 
 all:	init ${FILES} ${INITIAL_USER} ${PACKAGES} ${FIRSTBOOT_SENTINEL} clean shutdown
