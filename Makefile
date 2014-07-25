@@ -9,6 +9,7 @@ TOUCH?=	/usr/bin/touch
 INSTALL?=	/usr/bin/install
 PW?=	/usr/sbin/pw
 GREP?=	/usr/bin/grep
+DIRNAME?=	/usr/bin/dirname
 
 FIRSTBOOT_SENTINEL?=	/firstboot
 
@@ -70,6 +71,7 @@ ${INITIAL_USER}:
 	fi
 
 ${FILES}:	${FILES_DIR}/${.TARGET}
+	${INSTALL} -o root -g wheel `${DIRNAME} ${.TARGET}`
 	${INSTALL} -o root -g wheel ${FILES_DIR}${.TARGET} ${.TARGET}
 
 bootstrap-pkg:
