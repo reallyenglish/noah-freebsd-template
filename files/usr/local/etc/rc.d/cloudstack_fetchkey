@@ -1,0 +1,71 @@
+#!/bin/sh
+
+# KEYWORD: firstboot
+# PROVIDE: cs_fetchkey
+# REQUIRE: NETWORKING
+# BEFORE: LOGIN
+
+# Define cs_fetchkey_enable=YES in /etc/rc.conf to enable SSH key fetching
+# when the system first boots.
+: ${cs_fetchkey_enable=NO}
+
+# Set cs_fetchkey_user to change the user for which SSH keys are provided.
+: ${cs_fetchkey_user=cs-user}
+
+. /etc/rc.subr
+
+name="cs_fetchkey"
+rcvar=cs_fetchkey_enable
+start_cmd="cs_fetchkey_run"
+stop_cmd=":"
+
+
+cs_fetchkey_run()
+{
+	# If the user does not exist, create it.
+	if ! grep -q "^{cs_fetchkey_user}:" /etc/passwd; then
+		echo "Creating user ${cs_fetchkey_user}"
+		pw useradd ${cs_fetchkey_user} -m -G wheel
+	fi
+
+	# Figure out where the SSH public key needs to go.
+	eval SSHKEYFILE="~${cs_fetchkey_user}/.ssh/authorized_keys"
+
+    SSHKEY_SERVER_IP=""
+    DHCP_LEASES="/var/db/dhclient.leases.*"
+    for DHCP_FILE in ${DHCP_LEASES}; do
+        if [ -f $DHCP_FILE ]; then
+            SSHKEY_SERVER_IP=$(grep dhcp-server-identifier $DHCP_FILE | tail -1 | awk '{print $NF}' | tr -d '\;')
+            if [ -n ${SSHKEY_SERVER_IP} ]; then
+                break
+            fi
+        fi
+    done
+    if [ ! -n ${SSHKEY_SERVER_IP} ]; then
+        echo "cannot find SSH key server"
+        exit 1
+    fi
+    SSHKEYURL="http://${SSHKEY_SERVER_IP}/latest/public-keys"
+
+	# Grab the provided SSH public key and add it to the
+	# right authorized_keys file to allow it to be used to
+	# log in as the specified user.
+	echo "Fetching SSH public key for ${cs_fetchkey_user} from ${SSHKEYURL}"
+	mkdir -p `dirname ${SSHKEYFILE}`
+	chmod 700 `dirname ${SSHKEYFILE}`
+	chown ${cs_fetchkey_user} `dirname ${SSHKEYFILE}`
+	ftp -o ${SSHKEYFILE}.cs -a ${SSHKEYURL} >/dev/null
+	if [ -f ${SSHKEYFILE}.cs ]; then
+		touch ${SSHKEYFILE}
+		sort -u ${SSHKEYFILE} ${SSHKEYFILE}.cs		\
+		    > ${SSHKEYFILE}.tmp
+		mv ${SSHKEYFILE}.tmp ${SSHKEYFILE}
+		chown ${cs_fetchkey_user} ${SSHKEYFILE}
+		rm ${SSHKEYFILE}.cs
+	else
+		echo "Fetching SSH public key failed!"
+	fi
+}
+
+load_rc_config $name
+run_rc_command "$1"
