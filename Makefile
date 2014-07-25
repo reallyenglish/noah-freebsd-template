@@ -7,6 +7,8 @@ ECHO?=	/bin/echo
 PKG?=	/usr/sbin/pkg
 TOUCH?=	/usr/bin/touch
 INSTALL?=	/usr/bin/install
+PW?=	/usr/sbin/pw
+GREP?=	/usr/bin/grep
 
 FIRSTBOOT_SENTINEL?=	/firstboot
 
@@ -14,6 +16,7 @@ PKG_CACHE_DIR?=	/var/cache/pkg
 PKG_DB_DIR?=	/var/db/pkg
 FREEBSD_UPDATE_DIR?=	/var/db/freebsd-update
 SRC_BASE?=  /usr/src
+INITIAL_USER?=	cs-user
 
 FILES_DIR?=	files
 # FILES				files to install under ${FILES_DIR}
@@ -23,12 +26,12 @@ FILES=	/etc/ssh/sshd_config \
 # FILES_TO_CLEAN	files to remove before reboot
 FILES_TO_CLEAN= /root/.ssh/authorized_keys \
 	/root/.history \
-	/home/cs-user/.ssh/authorized_keys \
-	/home/cs-user/.history \
+	/home/${INITIAL_USER}/.history \
 	/etc/ssh/ssh_host_*	\
 	${PKG_DB_DIR}/repo-*.sqlite
 # DIRS_TO_CLEAN		directories to remove before reboot
 DIRS_TO_CLEAN= ${PKG_CACHE_DIR}/* \
+	/home/${INITIAL_USER}/.ssh \
 	${FREEBSD_UPDATE_DIR}
 
 # PACKAGES			packages to install
@@ -52,12 +55,17 @@ IGNORE=	cannot determine OSVERSION
 IGNORE=	requires FreeBSD 10.0 or above
 .endif
 
-all:	init ${FILES} ${PACKAGES} ${FIRSTBOOT_SENTINEL} clean shutdown
+all:	init ${FILES} ${INITIAL_USER} ${PACKAGES} ${FIRSTBOOT_SENTINEL} clean shutdown
 
 init:
 .if defined(IGNORE)
 	@${ECHO} ">>> ${IGNORE}" && exit 1
 .endif
+
+${INITIAL_USER}:
+	if ! ${GREP} -q "^${INITIAL_USER}:" /etc/passwd; then \
+		${PW} useradd ${INITIAL_USER} -m -G wheel; \
+	fi
 
 ${FILES}:	${FILES_DIR}/${.TARGET}
 	${INSTALL} -o root -g wheel ${FILES_DIR}${.TARGET} ${.TARGET}
