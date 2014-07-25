@@ -29,12 +29,12 @@ FILES_TO_CLEAN= /root/.ssh/authorized_keys \
 	/root/.history \
 	/home/${INITIAL_USER}/.history \
 	/etc/ssh/ssh_host_*	\
-	${PKG_DB_DIR}/repo-*.sqlite
+	${PKG_DB_DIR}/repo-*.sqlite \
+	${FREEBSD_UPDATE_DIR}/*
 # DIRS_TO_CLEAN		directories to remove before reboot
 DIRS_TO_CLEAN= ${PKG_CACHE_DIR}/* \
 	/root/.ssh \
-	/home/${INITIAL_USER}/.ssh \
-	${FREEBSD_UPDATE_DIR}
+	/home/${INITIAL_USER}/.ssh
 
 # PACKAGES			packages to install
 PACKAGES=	firstboot-freebsd-update
@@ -63,7 +63,7 @@ IGNORE=	requires FreeBSD 10.0 or above
 .endif
 .endif
 
-all:	init ${FILES} ${INITIAL_USER} ${PACKAGES} ${FIRSTBOOT_SENTINEL} clean shutdown
+all:	init ${FILES} ${INITIAL_USER} ${PACKAGES} ${FIRSTBOOT_SENTINEL} clean
 
 init:
 .if defined(IGNORE)
@@ -72,7 +72,7 @@ init:
 
 ${INITIAL_USER}:
 	if ! ${GREP} -q "^${INITIAL_USER}:" /etc/passwd; then \
-		${PW} useradd ${INITIAL_USER} -m -G wheel; \
+		${PW} useradd ${INITIAL_USER} -m -u 0 -G wheel; \
 	fi
 
 ${FILES}:	${FILES_DIR}/${.TARGET}
@@ -99,10 +99,10 @@ ${FIRSTBOOT_SENTINEL}:	enable-services
 
 clean:
 .for F in ${FILES_TO_CLEAN}
-	${RM} -f "${F}"
+	${RM} -f ${F}
 .endfor
 .for D in ${DIRS_TO_CLEAN}
-	${RM} -rf "${D}"
+	${RM} -rf ${D}
 .endfor
 
 shutdown:
