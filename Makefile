@@ -39,6 +39,11 @@ DIRS_TO_CLEAN= ${PKG_CACHE_DIR}/* \
 # PACKAGES			packages to install
 PACKAGES=	firstboot-freebsd-update
 
+SERVICES?=	sshd \
+			ntpdate \
+			firstboot_freebsd_update \
+			cs_fetchkey
+
 # Get __FreeBSD_version (obtained from bsd.port.mk)
 .if !defined(OSVERSION)
 .if exists(/usr/include/sys/param.h)
@@ -82,7 +87,14 @@ bootstrap-pkg:
 ${PACKAGES}:	bootstrap-pkg
 	${ENV} ASSUME_ALWAYS_YES=1 ${PKG} install ${.TARGET} </dev/null
 
-${FIRSTBOOT_SENTINEL}:
+enable-services:
+.for S in ${SERVICES}
+	if ! ${GREP} -q -E '^${S}_enable=\"[Yy][Ee][Ss]\"' /etc/rc.conf; then \
+		${ECHO} '${S}_enable="YES"' >> /etc/rc.conf; \
+	fi
+.endfor
+
+${FIRSTBOOT_SENTINEL}:	enable-services
 	${TOUCH} ${.TARGET}
 
 clean:
