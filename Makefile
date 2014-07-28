@@ -17,7 +17,10 @@ PKG_CACHE_DIR?=	/var/cache/pkg
 PKG_DB_DIR?=	/var/db/pkg
 FREEBSD_UPDATE_DIR?=	/var/db/freebsd-update
 SRC_BASE?=  /usr/src
+HOME_DIR?=	/usr/home
 INITIAL_USER?=	cs-user
+INITIAL_USER_HOME_DIR?=	${HOME_DIR}/${INITIAL_USER}
+INITIAL_USER_PASSWORD?=	password
 
 FILES_DIR?=	files
 # FILES				files to install under ${FILES_DIR}
@@ -27,14 +30,14 @@ FILES=	/etc/ssh/sshd_config \
 # FILES_TO_CLEAN	files to remove before reboot
 FILES_TO_CLEAN= /root/.ssh/authorized_keys \
 	/root/.history \
-	/home/${INITIAL_USER}/.history \
+	${INITIAL_USER_HOME_DIR}/.history \
 	/etc/ssh/ssh_host_*	\
 	${PKG_DB_DIR}/repo-*.sqlite \
 	${FREEBSD_UPDATE_DIR}/*
 # DIRS_TO_CLEAN		directories to remove before reboot
 DIRS_TO_CLEAN= ${PKG_CACHE_DIR}/* \
 	/root/.ssh \
-	/home/${INITIAL_USER}/.ssh
+	${INITIAL_USER_HOME_DIR}/.ssh
 
 # PACKAGES			packages to install
 PACKAGES=	firstboot-freebsd-update
@@ -70,10 +73,16 @@ init:
 	@${ECHO} ">>> ${IGNORE}" && exit 1
 .endif
 
+# create an initial user. give him UID 0 so that "knife cloudstack server
+# create" can succeed. ${INITIAL_USER} may be removed after bootstrap but root
+# itself may not.
 ${INITIAL_USER}:
 	if ! ${GREP} -q "^${INITIAL_USER}:" /etc/passwd; then \
-		${PW} useradd ${INITIAL_USER} -m -G wheel; \
+		${PW} useradd ${INITIAL_USER} -d ${INITIAL_USER_HOME_DIR} -u 0 -G wheel -o -m; \
+	else; \
+		${PW} usermod ${INITIAL_USER} -d ${INITIAL_USER_HOME_DIR} -u 0 -G wheel -o -m; \
 	fi
+	${ECHO} '${INITIAL_USER_PASSWORD}' | ${PW} usermod ${INITIAL_USER} -h 0
 
 ${FILES}:	${FILES_DIR}/${.TARGET}
 	${INSTALL} -o root -g wheel -d `${DIRNAME} ${.TARGET}`
