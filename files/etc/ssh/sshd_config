@@ -1,3 +1,4 @@
 UseDNS no
 UsePAM no
 PasswordAuthentication no
+PermitRootLogin without-password
