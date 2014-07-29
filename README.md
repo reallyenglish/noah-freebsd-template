@@ -31,6 +31,12 @@ they are not supported. supported release includes:
 
 * FreeBSD 10.0-RELEASE 
 
+TODO
+====
+
+* scripts under files/usr/local/etc/rc.d should be packaged like sysutils/ec2-scripts
+* import ec2\_configinit from sysutils/ec2-scripts
+
 license
 =======
 
