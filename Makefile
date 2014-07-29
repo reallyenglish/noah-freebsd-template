@@ -9,6 +9,7 @@ TOUCH?=	/usr/bin/touch
 INSTALL?=	/usr/bin/install
 PW?=	/usr/sbin/pw
 GREP?=	/usr/bin/grep
+SED?=	/usr/bin/sed
 DIRNAME?=	/usr/bin/dirname
 
 FIRSTBOOT_SENTINEL?=	/firstboot
@@ -106,7 +107,12 @@ enable-services:
 ${FIRSTBOOT_SENTINEL}:	enable-services
 	${TOUCH} ${.TARGET}
 
-clean:
+remove-hostname:
+	if ${GREP} -q '^hostname=' /etc/rc.conf; then \
+		${SED} -I -e '' 's/^hostname=.*//' /etc/rc.conf; \
+	fi
+
+clean: remove-hostname
 .for F in ${FILES_TO_CLEAN}
 	${RM} -f ${F}
 .endfor
