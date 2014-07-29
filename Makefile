@@ -25,8 +25,9 @@ INITIAL_USER_PASSWORD?=	password
 
 FILES_DIR?=	files
 # FILES				files to install under ${FILES_DIR}
-FILES=	/etc/ssh/sshd_config \
-		/usr/local/etc/rc.d/cs_fetchkey
+FILES+=	/etc/ssh/sshd_config \
+		/usr/local/etc/rc.d/cs_fetchkey \
+		/usr/local/etc/pkg/repos/FreeBSD.conf
 
 # FILES_TO_CLEAN	files to remove before reboot
 FILES_TO_CLEAN= /root/.ssh/authorized_keys \
