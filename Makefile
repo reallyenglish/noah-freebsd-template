@@ -84,8 +84,8 @@ init:
 ${INITIAL_USER}:
 	if ! ${GREP} -q "^${INITIAL_USER}:" /etc/passwd; then \
 		${PW} useradd ${INITIAL_USER} -d ${INITIAL_USER_HOME_DIR} -u 0 -G wheel -o -m; \
-	else; \
-		${PW} usermod ${INITIAL_USER} -d ${INITIAL_USER_HOME_DIR} -u 0 -G wheel -o -m; \
+	else \
+		${PW} usermod ${INITIAL_USER} -d ${INITIAL_USER_HOME_DIR} -u 0 -G wheel -m; \
 	fi
 	${ECHO} '${INITIAL_USER_PASSWORD}' | ${PW} usermod ${INITIAL_USER} -h 0
 
@@ -113,7 +113,7 @@ ${FIRSTBOOT_SENTINEL}:	enable-services
 
 remove-hostname:
 	if ${GREP} -q '^hostname=' /etc/rc.conf; then \
-		${SED} -I -e '' 's/^hostname=.*//' /etc/rc.conf; \
+		${SED} -I '' -e 's/^hostname=.*//' /etc/rc.conf; \
 	fi
 
 clean: remove-hostname
