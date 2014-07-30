@@ -2,7 +2,7 @@
 
 # Check parameters.
 if [ $# -ne 1 ]; then
-	echo "usage: configinit configdata"
+	echo "usage: cs_configinit configdata"
 	exit 1
 fi
 CONFDATA=$1
@@ -39,7 +39,7 @@ if [ "`head -c 3 ${CONFDATA}`" = '>>/' ]; then
 fi
 
 # Otherwise, hope this is an archive containing more files for us to process.
-D=`mktemp -d "${TMPDIR:-/tmp}/configinit.XXXXXX"`
+D=`mktemp -d "${TMPDIR:-/tmp}/cs_configinit.XXXXXX"`
 trap 'rm -r "$D"' EXIT
 tar -xf ${CONFDATA} -C ${D}
 

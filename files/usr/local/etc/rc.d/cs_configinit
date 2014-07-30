@@ -1,27 +1,27 @@
 #!/bin/sh
 
 # KEYWORD: firstboot
-# PROVIDE: ec2_configinit
+# PROVIDE: cs_configinit
 # REQUIRE: NETWORKING
-# BEFORE: SERVERS ec2_fetchkey firstboot_freebsd_update firstboot_pkgs
+# BEFORE: SERVERS cs_fetchkey firstboot_freebsd_update firstboot_pkgs
 
-# Define ec2_configinit_enable=YES in /etc/rc.conf to enable automatic
-# system configuration from EC2 user-data when the system first boots.
-: ${ec2_configinit_enable=NO}
+# Define cs_configinit_enable=YES in /etc/rc.conf to enable automatic
+# system configuration from cloudstack user-data when the system first boots.
+: ${cs_configinit_enable=NO}
 
 . /etc/rc.subr
 
-name="ec2_configinit"
-rcvar=ec2_configinit_enable
-start_cmd="ec2_configinit_run"
+name="cs_configinit"
+rcvar=cs_configinit_enable
+start_cmd="cs_configinit_run"
 stop_cmd=":"
 
 CONFIGURL="http://169.254.169.254/latest/user-data"
 
-ec2_configinit_run()
+cs_configinit_run()
 {
 	# Download to a temporary location.
-	echo -n "Fetching EC2 user-data"
+	echo -n "Fetching cloudstack user-data"
 	CONFFILE=`mktemp "${TMPDIR:-/tmp}/configinit.XXXXXX"`
 	fetch -o ${CONFFILE} ${CONFIGURL} 2>/dev/null
 
@@ -29,8 +29,8 @@ ec2_configinit_run()
 	if [ $? = 0 ]; then
 		# Process the user-data.
 		echo .
-		echo -n "Processing EC2 user-data"
-		/usr/local/sbin/configinit $CONFFILE
+		echo -n "Processing cloudstack user-data"
+		/usr/local/sbin/cs_configinit $CONFFILE
 		echo .
 	else
 		echo " failed."
