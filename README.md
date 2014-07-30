@@ -23,6 +23,16 @@ what it does
 * disable password login and allow root to login with public key
 * remove host-specific files
 
+usage
+=====
+
+* install FreeBSD on an instance as usual
+* before final reboot, run (chrooted) shell
+* copy this repo into the instance
+* run make
+
+    # make -C /path/to/the/repo
+
 supported FreeBSD version
 =========================
 
