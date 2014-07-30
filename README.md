@@ -31,7 +31,9 @@ usage
 * copy this repo into the instance
 * run make
 
+<pre>
     # make -C /path/to/the/repo
+</pre>
 
 supported FreeBSD version
 =========================
