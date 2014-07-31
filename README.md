@@ -20,6 +20,7 @@ what it does
 * install updates by executing freebsd-update when the system first boots, then
   reboot
 * install ssh key pairs from virtual router
+* fetch user-data from virtual router and pass it to cs\_configinit
 * disable password login and allow root to login with public key
 * remove host-specific files
 
@@ -47,7 +48,6 @@ TODO
 ====
 
 * scripts under files/usr/local/etc/rc.d should be packaged like sysutils/ec2-scripts
-* import ec2\_configinit from sysutils/ec2-scripts
 
 license
 =======
