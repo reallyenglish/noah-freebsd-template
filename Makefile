@@ -28,9 +28,8 @@ FILES_DIR?=	files
 FILES+=	/etc/ssh/sshd_config \
 		/usr/local/etc/rc.d/cs_fetchkey \
 		/usr/local/etc/pkg/repos/FreeBSD.conf
-# XXX disabled while waiting for an answer from IDCF about how to use user-data
-#		/usr/local/sbin/cs_configinit \
-#		/usr/local/etc/rc.d/ec2_configinit \
+		/usr/local/sbin/cs_configinit \
+		/usr/local/etc/rc.d/cs_configinit
 
 # FILES_TO_CLEAN	files to remove before reboot
 FILES_TO_CLEAN= /root/.ssh/authorized_keys \
@@ -50,7 +49,8 @@ PACKAGES=	firstboot-freebsd-update
 SERVICES?=	sshd \
 			ntpdate \
 			firstboot_freebsd_update \
-			cs_fetchkey
+			cs_fetchkey \
+			cs_configinit
 
 # Get __FreeBSD_version (obtained from bsd.port.mk)
 .if !defined(OSVERSION)
