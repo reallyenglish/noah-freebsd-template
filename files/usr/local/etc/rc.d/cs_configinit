@@ -16,10 +16,24 @@ rcvar=cs_configinit_enable
 start_cmd="cs_configinit_run"
 stop_cmd=":"
 
-CONFIGURL="http://169.254.169.254/latest/user-data"
-
 cs_configinit_run()
 {
+    USERDATA_SERVER_IP=""
+    DHCP_LEASES="/var/db/dhclient.leases.*"
+    for DHCP_FILE in ${DHCP_LEASES}; do
+        if [ -f $DHCP_FILE ]; then
+            USERDATA_SERVER_IP=$(grep dhcp-server-identifier $DHCP_FILE | tail -1 | awk '{print $NF}' | tr -d '\;')
+            if [ -n ${SSHKEY_SERVER_IP} ]; then
+                break
+            fi
+        fi
+    done
+    if [ ! -n ${USERDATA_SERVER_IP} ]; then
+        echo "cannot find SSH key server"
+        exit 1
+    fi
+    CONFIGURL="http://${USERDATA_SERVER_IP}/latest/user-data"
+
 	# Download to a temporary location.
 	echo -n "Fetching cloudstack user-data"
 	CONFFILE=`mktemp "${TMPDIR:-/tmp}/configinit.XXXXXX"`
