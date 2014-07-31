@@ -27,7 +27,7 @@ FILES_DIR?=	files
 # FILES				files to install under ${FILES_DIR}
 FILES+=	/etc/ssh/sshd_config \
 		/usr/local/etc/rc.d/cs_fetchkey \
-		/usr/local/etc/pkg/repos/FreeBSD.conf
+		/usr/local/etc/pkg/repos/FreeBSD.conf \
 		/usr/local/sbin/cs_configinit \
 		/usr/local/etc/rc.d/cs_configinit
 
