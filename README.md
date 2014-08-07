@@ -6,7 +6,7 @@ creates FreeBSD template from fresh installation.
 noah, not cloudstack
 ====================
 
-noah, or IDCF cloud, is an IaaS cloud service provided by IDCF. it is based on
+IDCF cloud, is an IaaS cloud service provided by IDCF. it is based on
 cloudstack 2.2.x, which is EoLed by citrix. although most of things that need
 to be done to create a FreeBSD template are common between 2.2.x and newer
 versions, there might be differences. an example is meta-data URL. newer
