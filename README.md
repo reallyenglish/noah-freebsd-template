@@ -36,6 +36,28 @@ usage
     # make -C /path/to/the/repo
 </pre>
 
+userdata
+========
+
+to configure something specific to an instance, use userdata. cs\_configinit
+fetches userdata from virtual router using HTTP. if the userdata looks like a
+script (the first 2 bytes is "#!"), cs\_configinit makes it executable and run
+it. an example:
+
+<pre>
+    #!/bin/sh
+    HOSTNAME="foo.example.com"
+    echo "hostname=\"${HOSTNAME}\"" >> /etc/rc.conf
+</pre>
+
+if you have a non-default network as a primary network, you probably want to
+append something like:
+
+<pre> 
+    DEFAULT_GATEWAY="192.168.1.1"
+    echo "interface \"em0\" { default routers ${DEFAULT_GATEWAY}; }" >> /etc/dhclient.conf
+</pre>
+
 supported FreeBSD version
 =========================
 
